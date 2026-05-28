@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "optionskit"
+version = "0.1.0"
+description = "A modern Python toolkit for options pricing, Greeks, and payoff visualization."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "OptionsKit Contributors" }]
+keywords = ["options", "finance", "black-scholes", "greeks", "payoff", "trading", "quant"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "plotly>=5.18",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/KapishYadavv/optionskit"
+Issues = "https://github.com/KapishYadavv/optionskit/issues"
+Repository = "https://github.com/KapishYadavv/optionskit"
+
+[tool.hatch.build.targets.wheel]
+packages = ["optionskit"]
