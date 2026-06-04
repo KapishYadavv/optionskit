@@ -81,19 +81,13 @@ presets.iron_condor(
 
 See [`examples/`](examples/) for `straddle`, `bull_call_spread`, `iron_condor`, and `covered_call`.
 
-## Roadmap (V2)
+## Roadmap (V0.3)
 
 - IV surface plotting (3D)
 - Time-decay / "T-minus" overlays (plot P&L curves for multiple expiries)
 - More presets (calendar spreads, ratio spreads, collars, ...)
 - Interactive JS / React version
 
-## Regenerating the hero image
-
-```bash
-pip install kaleido
-python scripts/generate_hero.py
-```
 
 Outputs `docs/img/hero.png` (1600×900 @ 2× scale) and `docs/img/hero.html`.
 
