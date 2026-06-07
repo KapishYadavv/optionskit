@@ -35,6 +35,9 @@ That's a short strangle. The interactive Plotly chart shows your P&L at expiry �
 - **Strategies** — combine any number of European call/put legs, plus stock, long or short
 - **Presets** — `straddle`, `strangle`, `bull_call_spread`, `bear_put_spread`, `iron_condor`, `covered_call`, `protective_put`, `butterfly`
 - **Visualization** — interactive Plotly payoff charts with labeled strike markers, breakeven dots, and max profit / max loss annotations
+- **Position analytics** — net Greeks, `summary()` (max P/L, breakevens, risk/reward), probability of profit
+- **Stress testing** — reprice the strategy under spot / vol / time shocks; Plotly heatmap across a (spot × vol) grid
+- **Time-decay overlay** — see the value curve melt toward the expiry payoff
 - **Export** — `s.save_payoff("chart.html")` or `chart.png` (PNG/SVG/PDF need `kaleido`)
 
 ```python
@@ -81,15 +84,53 @@ presets.iron_condor(
 
 See [`examples/`](examples/) for `straddle`, `bull_call_spread`, `iron_condor`, and `covered_call`.
 
+### Stress testing
+
+```python
+from optionskit import presets
+
+condor = presets.iron_condor(80, 90, 110, 120, 0.5, 2.0, 2.0, 0.5)
+
+# Single-scenario "what if?"
+condor.stress_test(
+    spot=100, T=45/365, sigma=0.22,
+    scenarios=[
+        {"spot_shift": -0.10, "vol_shift": +0.05, "days_passed": 7},   # -10% crash + vol pop
+        {"spot_shift": -0.20, "vol_shift": +0.15, "days_passed": 1},   # Black Monday
+    ],
+)
+# [{'spot_shift': -0.1, 'vol_shift': 0.05, ..., 'pnl': -4.27, 'pnl_vs_baseline': -7.30}, ...]
+
+# Full heatmap across spot × vol grid
+condor.plot_stress_heatmap(spot=100, T=45/365, sigma=0.22).show()
+```
+
+### Position analytics
+
+```python
+condor.summary()
+# {'max_profit': 3.0, 'max_loss': -7.0, 'breakevens': [87.0, 113.0],
+#  'net_premium': -3.0, 'risk_reward': 2.33}
+
+condor.greeks(spot=100, T=45/365, sigma=0.22)
+# {'delta': -0.03, 'gamma': -0.04, 'vega': -10.96, 'theta': 9.78, 'rho': -0.25}
+#  near-neutral delta, short gamma/vega, positive theta — classic condor
+
+condor.pop(spot=100, T=45/365, sigma=0.22)   # 0.909  (probability of profit)
+
+# Watch theta bleed the value toward the expiry payoff:
+condor.plot_time_decay(T=45/365, sigma=0.22).show()
+```
+
+`summary()`'s `net_premium` is signed (`+` = net debit paid, `-` = net credit
+received). `greeks()` and `pop()` assume a single shared expiry `T` and `sigma`
+across all legs.
+
 ## Roadmap (V0.3)
 
 - IV surface plotting (3D)
-- Time-decay / "T-minus" overlays (plot P&L curves for multiple expiries)
 - More presets (calendar spreads, ratio spreads, collars, ...)
 - Interactive JS / React version
-
-
-Outputs `docs/img/hero.png` (1600×900 @ 2× scale) and `docs/img/hero.html`.
 
 ## License
 

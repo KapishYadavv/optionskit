@@ -41,6 +41,52 @@ class Strategy:
         self.legs.append(Leg("stock", entry, 0.0, qty))
         return self
 
+    # ------------------------------------------------------------------
+    # Stress testing (delegates to optionskit.stress)
+    # ------------------------------------------------------------------
+    def stress_test(self, spot, T, scenarios, r=0.0, sigma=0.20):
+        """Evaluate this strategy under a list of (spot/vol/time) scenarios.
+
+        See :func:`optionskit.stress.stress_test` for the scenario schema.
+        """
+        from .stress import stress_test as _st
+        return _st(self, spot, T, scenarios, r=r, sigma=sigma)
+
+    def plot_stress_heatmap(self, spot, T, *, spot_shifts=None, vol_shifts=None,
+                            days_passed=0.0, r=0.0, sigma=0.20,
+                            title="Stress test — P&L under spot × vol shocks"):
+        """Plotly heatmap of P&L across a (spot_shift × vol_shift) grid."""
+        from .stress import plot_stress_heatmap as _plot
+        return _plot(self, spot, T,
+                     spot_shifts=spot_shifts, vol_shifts=vol_shifts,
+                     days_passed=days_passed, r=r, sigma=sigma, title=title)
+
+    # ------------------------------------------------------------------
+    # Analytics (delegates to optionskit.analytics)
+    # ------------------------------------------------------------------
+    def greeks(self, spot, T, r=0.0, sigma=0.20) -> dict:
+        """Net delta/gamma/vega/theta/rho of the whole position."""
+        from .analytics import portfolio_greeks
+        return portfolio_greeks(self, spot, T, r=r, sigma=sigma)
+
+    def summary(self) -> dict:
+        """Max profit/loss, breakevens, net premium, and risk/reward."""
+        from .analytics import summary as _summary
+        return _summary(self)
+
+    def pop(self, spot, T, r=0.0, sigma=0.20, drift=None) -> float:
+        """Probability of finishing profitable at expiry (lognormal model)."""
+        from .analytics import probability_of_profit
+        return probability_of_profit(self, spot, T, r=r, sigma=sigma, drift=drift)
+
+    def plot_time_decay(self, T, *, days_to_expiry=None, spot_range=None,
+                        r=0.0, sigma=0.20,
+                        title="Time decay — value as expiry approaches"):
+        """Overlay the strategy value at several days-to-expiry snapshots."""
+        from .analytics import plot_time_decay as _plot
+        return _plot(self, T, days_to_expiry=days_to_expiry, spot_range=spot_range,
+                     r=r, sigma=sigma, title=title)
+
     def payoff(self, prices) -> np.ndarray:
         """P&L at expiry across an array of underlying prices."""
         if not self.legs:
